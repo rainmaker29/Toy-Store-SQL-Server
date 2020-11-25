@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block head %}
+
+<title>Ecommerce Store</title>
+
+<style>
+
+    a { color: inherit; } 
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: auto auto auto auto auto auto;
+        grid-gap: 10px;
+        background-color: #21960F;
+        padding: 10px;
+    }
+    
+    .grid-container > div {
+        background-color: rgba(255, 255, 255, 0.8);
+        text-align: center;
+        padding: 20px 0;
+        font-size: 30px;
+    }
+   
+    .item1 {
+        grid-column: 1 / 1;
+    }
+</style>
+    
+
+{% endblock %}
+
+{% block body %}
+
+   
+<h2>Ecommerce Store</h2>
+
+{% from "_formhelpers.html" import render_field %}
+<form method="post">
+  <dl>
+    <p>
+    {{ render_field(form.search) }}
+  </p></dl>
+  <p><input type="submit" value="Search">
+</p></form>
+
+
+
+<div>
+<h3>Results </h3> 
+
+<p> {{ getlen(results) }}  matches found</p>
+
+<div class="grid-container">
+    {% for product_id in results%}
+
+    <div class="item{{ loop.index }}">
+
+       <a href="{{url_for('product', product_id=product_id)}}"> 
+           {{ get_name_by_id(product_id) }} 
+        </a>
+
+    </div>
+    
+    {% endfor %}
+</div>
+</div>
+
+
+{% endblock %}
+
