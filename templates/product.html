@@ -4,17 +4,39 @@
 
 <title>Ecommerce Store</title>
 
+
 {% endblock %}
 
 {% block body %}
-
-   
-<h2>Ecommerce Store</h2>
+  
 
 <div>
 
+    <p> Name = {{ product_info['name'][key] }}</p>
+    <p> id = {{ product_info['ids'][key] }}</p>
+    <p> Avg_rating = {{ product_info['average_review_rating'][key] }}</p>
+    <p> Category = {{ product_info['category'][key] }}</p>
+    <p> Price = {{ product_info['price'][key] }}</p>
     
+
+</div>
+
+<div>
+
+    <h3> Recommendations</h3>
+    <div class="grid-container">
+    {% for recommended_product_id in recommendations %}
     
+    <div class="item{{ loop.index }}">
+
+        <a href="{{url_for('product', product_id=recommended_product_id)}}"> 
+            {{ get_name_by_id(recommended_product_id) }} 
+         </a>
+ 
+     </div>
+    
+    {% endfor %}
+    </div>
 
 </div>
 

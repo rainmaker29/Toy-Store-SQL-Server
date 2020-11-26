@@ -1,11 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
+
+
+<style>
+
+    a { color: inherit; } 
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: auto auto auto auto auto auto;
+        grid-gap: 10px;
+        background-color: #21960F;
+        padding: 10px;
+    }
+    
+    .grid-container > div {
+        background-color: rgba(255, 255, 255, 0.8);
+        text-align: center;
+        padding: 20px 0;
+        font-size: 30px;
+    }
+   
+    .item1 {
+        grid-column: 1 / 1;
+    }
+</style>
+
+
 {% block head %}
 {% endblock %}
 </head>
 
 <body>
+    <a href="{{url_for('home')}}"> 
+        <h2> Ecommerce Store</h2>
+    </a>
+    
+
 {% block body %}
 {% endblock %}
 

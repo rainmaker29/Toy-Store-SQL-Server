@@ -4,32 +4,43 @@
 
 <title>Ecommerce Store</title>
 
-<style>
-a { color: inherit; } 
-
-    .grid-container {
-      display: grid;
-      grid-template-columns: auto auto auto auto auto auto;
-      grid-gap: 10px;
-      background-color: #21960F;
-      padding: 10px;
-    }
-    
-    .grid-container > div {
-      background-color: rgba(255, 255, 255, 0.8);
-      text-align: center;
-      padding: 20px 0;
-      font-size: 30px;
-    }
-    
-    .item1 {
-      grid-column: 1 / 1;
-    }
-    </style>
 
 {% endblock %}
 
 {% block body %}
+
+{% if not user.email %}
+
+<form action='/login' method='post'>
+  <input type="submit" value="users" name="user">
+  <input type="submit" value="sellers" name="seller">
+
+</form>
+{% endif %}
+
+{% if user.role=='seller' %}
+
+<form action='/add_product'>
+<input type='submit' value='add_product'>
+</form>
+
+<form action='/logout'>
+  <input type='submit' value='logout'>
+  </form>
+  
+
+{% elif user.role=='user' %}
+
+<form action='/checkout'>
+  <input type='submit' value='checkout'>
+  </form>
+
+  <form action='/logout'>
+    <input type='submit' value='logout'>
+    </form>
+    
+
+{% endif %}
 
 {% with messages = get_flashed_messages() %}
   {% if messages %}
@@ -42,7 +53,7 @@ a { color: inherit; }
 {% endwith %}
 
     
-<h2>Ecommerce Store</h2>
+
 {% from "_formhelpers.html" import render_field %}
 <form method="post">
   <dl>
