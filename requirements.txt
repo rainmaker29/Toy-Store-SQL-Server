@@ -1,0 +1,5 @@
+flask
+wtforms
+numpy
+pandas
+bcrypt
