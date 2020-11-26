@@ -6,6 +6,6 @@ RUN apt-get update \
 WORKDIR app
 ENV PATH="/root/.local/bin:${PATH}"
 RUN pip install --user -r requirements.txt
-ENTRYPOINT [ "python" ] 
+ENTRYPOINT [ "python" ]
 CMD [ "app.py" ] 
 
