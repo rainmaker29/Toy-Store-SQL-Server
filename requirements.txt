@@ -4,4 +4,4 @@ wtforms
 numpy
 pandas
 bcrypt
-secrets
+secret
