@@ -18,6 +18,8 @@ class User():
       self.password = None
       self.role = None
       self.otp = None
+      self.cart = None
+      self.cost = 0
 
 user = User()
 
@@ -76,11 +78,46 @@ def product(product_id):
     key = list(product_info["name"].keys())[0]
     name = product_info["name"][key]
     recommendations = recommend_product(name)
-    
+
     return render_template("product.html",product_info=product_info,
-    recommendations=recommendations,key=key)
+    recommendations=recommendations,key=key,user=user)
 
 
+# User/Customer functions ------------------------
+
+@app.route("/add_to_cart")
+def add_to_cart():
+    product_id = request.referrer.split("/")[-1]
+    product_info = get_all(product_id)
+    key = list(product_info["name"].keys())[0]
+    product_price = product_info["price"][key]
+    user.cost += product_price
+    user.cart.append(product_id)
+    flash(f"Added to cart. In cart : {len(user.cart)} items")
+    return redirect(request.referrer)
+
+
+
+@app.route("/view_cart")
+def view_cart():
+    return render_template("view_cart.html",user=user)
+
+@app.route("/remove_from_cart",methods=["POST"])
+def remove_from_cart():
+    product_id=list(request.form.keys())[0]
+    user.cart.remove(product_id)
+    product_info = get_all(product_id)
+    key = list(product_info["name"].keys())[0]
+    product_price = product_info["price"][key]
+    user.cost -= product_price
+    
+    return render_template("/view_cart.html",user=user)
+
+@app.route("/payment",methods=["POST","GET"])
+def payment():
+    return render_template("payment.html")
+
+# Seller Functions ------------------------
 
 @app.route("/my_products")
 def my_products():
@@ -134,12 +171,11 @@ def check_login_or_signup():
          password = bytes(password,"utf-8")
          hashed = bcrypt.hashpw(password, salt)
 
-         
-         
-
          if str(hashed) == users[email].split("\t")[0]:
             user.email = email
             user.password = str(hashed)
+            if user.role=="user":
+                user.cart=list()
             flash("Login succesfful")
             return redirect("/")
          else:

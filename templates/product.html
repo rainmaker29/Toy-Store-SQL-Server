@@ -18,7 +18,24 @@
     <p> Category = {{ product_info['category'][key] }}</p>
     <p> Price = {{ product_info['price'][key] }}</p>
     
+    {% if user.role=="user" %}
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+            
+        {% endif %}
+    {% endwith %}
 
+    <form action="/add_to_cart">
+        <input type="submit" value="add_to_cart" name="add_to_cart">
+    </form>
+    <form action="/view_cart">
+        <input type="submit" value="view_cart">
+        </form>
+{% endif %}
 </div>
 
 <div>
