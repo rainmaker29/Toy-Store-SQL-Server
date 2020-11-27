@@ -1,4 +1,5 @@
 flask
+gunicorn
 wtforms
 numpy
 pandas
