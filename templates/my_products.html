@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+
+{% block head %}
+
+<title>Ecommerce Store</title>
+
+
+{% endblock %}
+
+{% block body %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    
+    {% for message in messages %}
+      <p>{{ message }}</p>
+    {% endfor %}
+    
+  {% endif %}
+{% endwith %}
+
+
+<div>
+<form action="/add_product" method="POST">
+
+<input type="text" name="new_product_name" placeholder="name">
+<input type="text" name="new_product_rating" placeholder="rating">
+<input type="text" name="new_product_category" placeholder="category">
+<input type="text" name="new_product_price" placeholder="price">
+<input type="submit" value="add product" name="submit">
+</form>
+</div>
+
+
+<div>
+
+    <h3> Your Products on sale</h3>
+    <div class="grid-container">
+        {% for product_id in my_prods %}
+        
+        <div class="item{{ loop.index }}">
+    
+            <a href="{{url_for('product', product_id=product_id)}}"> 
+                {{ get_name_by_id(product_id) }} 
+             </a>
+     
+         </div>
+        
+        {% endfor %}
+        </div>
+
+
+
+</div>
+
+
+{% endblock %}
+

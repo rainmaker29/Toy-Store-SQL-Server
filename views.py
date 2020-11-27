@@ -8,6 +8,8 @@ import json
 import re
 import bcrypt
 import smtplib
+import secrets
+import string
 
 
 class User():
@@ -78,18 +80,32 @@ def product(product_id):
     return render_template("product.html",product_info=product_info,
     recommendations=recommendations,key=key)
 
-@app.context_processor
-def getname():
-    def get_name_by_id(id):
-        return df.loc[df["ids"]==id,"name"].to_list()[0]
-    return dict(get_name_by_id=get_name_by_id)
 
 
-@app.context_processor
-def get_length():
-    def getlen(obj):
-        return len(obj)
-    return dict(getlen=getlen)
+@app.route("/my_products")
+def my_products():
+    return render_template("my_products.html",my_prods=get_seller_products(user.email))
+
+@app.route("/add_product",methods=['POST'])
+def add_product():
+    new_prod=["N/A"]*14
+
+    new_prod[0] = user.email
+    new_prod[1] = request.form['new_product_price']
+    new_prod[5] = request.form['new_product_rating']
+    new_prod[10] = request.form['new_product_category']
+    new_prod[12] = request.form['new_product_name']
+    new_prod[13] = ''.join(secrets.choice(string.ascii_uppercase + string.digits) 
+                                                  for i in range(32)) 
+    if new_prod[1]=="N/A" or new_prod[12]=="N/A":
+        flash("Insuff product info ! Add again !")
+        return render_template("/my_products.html",my_prods=get_seller_products(user.email))
+
+    df.loc[len(df)+1] = new_prod
+    df.to_csv('products.csv',index=False)
+    flash("Item added !")
+    return render_template("/my_products.html",my_prods=get_seller_products(user.email))
+
 
 # Login , Signup 
 # ------------------
@@ -195,6 +211,22 @@ def logout():
 
 ### Utils 
 
+
+@app.context_processor
+def getname():
+    def get_name_by_id(id):
+        return df.loc[df["ids"]==id,"name"].to_list()[0]
+    return dict(get_name_by_id=get_name_by_id)
+
+
+@app.context_processor
+def get_length():
+    def getlen(obj):
+        return len(obj)
+    return dict(getlen=getlen)
+
+
+
 def get_all(id):
     res = df.loc[df["ids"]==id,:].to_dict()
     return res
@@ -207,9 +239,17 @@ def get_idx(x):
 def recommend_product(product):
     recommendations=[]
     index = get_idx(product)
-    for i in product_indices[index][1:]:
+    try:
+        for i in product_indices[index][1:]:
             recommendations.append(df.iloc[i]["ids"])
+    except IndexError:
+        recommendations=[]
 
     return recommendations
             
-
+def get_seller_products(email):
+    res=[]
+    sellers_prods_ids = df.loc[df['manufacturer']==email,'ids'].to_list()
+    for prod_id in sellers_prods_ids:
+        res.append(prod_id)
+    return res
