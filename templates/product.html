@@ -76,6 +76,7 @@ th, td {
     </tr>
     
     <tr>
+        {% if user.role=="user" %}
     <td><form action="/add_to_cart" class="form-inline">
         <input type="submit" value="add_to_cart" name="add_to_cart" class="btn btn-primary ">
     </form></td>
@@ -83,7 +84,7 @@ th, td {
     <td><form action="/view_cart" class="form-inline">
         <input type="submit" value="view_cart" class="btn btn-primary ">
     </form></td>
-
+    {% endif %}
     
     </tr>
     

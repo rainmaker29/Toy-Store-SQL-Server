@@ -123,7 +123,8 @@ def payment():
 
 @app.route("/my_products")
 def my_products():
-    return render_template("my_products.html",my_prods=get_seller_products(user.email))
+    return render_template("my_products.html",my_prods=get_seller_products(user.email),
+    user=user)
 
 @app.route("/add_product",methods=['POST'])
 def add_product():
@@ -138,12 +139,13 @@ def add_product():
                                                   for i in range(32)) 
     if new_prod[1]=="N/A" or new_prod[12]=="N/A":
         flash("Insuff product info ! Add again !")
-        return render_template("/my_products.html",my_prods=get_seller_products(user.email))
+        return render_template("/my_products.html",my_prods=get_seller_products(user.email),
+        user=user)
 
     df.loc[len(df)+1] = new_prod
     df.to_csv('products.csv',index=False)
     flash("Item added !")
-    return render_template("/my_products.html",my_prods=get_seller_products(user.email))
+    return render_template("/my_products.html",my_prods=get_seller_products(user.email),user=user)
 
 
 # Login , Signup 
