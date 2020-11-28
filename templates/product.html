@@ -9,40 +9,95 @@ p{
     color:#ffb600;
 }
 
+
+figure {
+  margin: 0;
+  overflow: hidden;
+}
+
+figcaption {
+  margin-top: 15px;
+  /* color: #ccc; */
+}
+
+img {
+  border: none;
+  max-width: 100%;
+  height: 80%;
+  display: block;
+  
+  transition: transform .2s ease-in-out;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+}
 </style>
 
 
 {% endblock %}
 
 {% block body %}
-  
 
-<div>
 
-    <p> Name = {{ product_info['name'][key] }}</p>
-    <p> id = {{ product_info['ids'][key] }}</p>
-    <p> Avg_rating = {{ product_info['average_review_rating'][key] }}</p>
-    <p> Category = {{ product_info['category'][key] }}</p>
-    <p> Price = {{ product_info['price'][key] }}</p>
+
+
+<div style="overflow-x: auto; padding-left: 15%; margin-bottom: 2em;">
+
+
+
+    <img src="https://homepages.cae.wisc.edu/~ece533/images/pool.png" alt=""
+    style="border:1em solid #ddd; display: block; margin-left: auto;
+     margin-right:25em; margin-bottom: 2em;">
     
-    {% if user.role=="user" %}
-    {% with messages = get_flashed_messages() %}
+    <table>
+    <tr>
+        <td><p> Name = {{ product_info['name'][key] }}</p></td>
+        <td><p> id = {{ product_info['ids'][key] }}</p></td>
+    </tr>
+    
+    <tr>
+        <td><p> Avg_rating = {{ product_info['average_review_rating'][key] }}</p></td>
+        <td><p> Category = {{ product_info['category'][key] }}</p></td>
+    </tr>
+
+    <tr>
+    
+        <td><p> Price = {{ product_info['price'][key] }}</p></td>
+    
+    </tr>
+    
+    <tr>
+    <td><form action="/add_to_cart" class="form-inline">
+        <input type="submit" value="add_to_cart" name="add_to_cart" class="btn btn-primary ">
+    </form></td>
+    
+    <td><form action="/view_cart" class="form-inline">
+        <input type="submit" value="view_cart" class="btn btn-primary ">
+    </form></td>
+
+    
+    </tr>
+    
+</table>
+{% with messages = get_flashed_messages() %}
         {% if messages %}
-            
+                  
             {% for message in messages %}
-            <p>{{ message }}</p>
+                <p style="color: white;">{{ message }}</p>
             {% endfor %}
             
         {% endif %}
-    {% endwith %}
+{% endwith %}
 
-    <form action="/add_to_cart">
-        <input type="submit" value="add_to_cart" name="add_to_cart">
-    </form>
-    <form action="/view_cart">
-        <input type="submit" value="view_cart">
-        </form>
-{% endif %}
 </div>
 
 <div>
@@ -53,8 +108,11 @@ p{
     
     <div class="item{{ loop.index }}">
 
+        
         <a href="{{url_for('product', product_id=recommended_product_id)}}"> 
-            {{ get_name_by_id(recommended_product_id) }} 
+            <img src="https://homepages.cae.wisc.edu/~ece533/images/pool.png" alt=""
+            >
+            {{ trim_name(get_name_by_id(recommended_product_id)) }} 
          </a>
  
      </div>

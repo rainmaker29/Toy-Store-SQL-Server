@@ -28,6 +28,9 @@ html {
 body {
     background-color: #262626;
 }
+p,h1,h2,h3,h4,h5,h6 {
+    color: #ffb600;
+}
 
     /* a { color: inherit; }  */
 
@@ -35,12 +38,14 @@ body {
         display: grid;
         grid-template-columns: auto auto auto auto auto auto;
         grid-gap: 10px;
-        background-color: #000000;
+        /* background-color: #000000; */
         padding: 10px;
+        margin-left: 2%;
     }
     
     .grid-container > div {
-        background-color: rgba(50, 50, 50, 0.8);
+        /* background-color: rgba(50, 50, 50, 0.8); */
+        /* background-color:; */
         text-align: center;
         padding: 20px 0;
         font-size: 30px;
@@ -57,14 +62,55 @@ body {
 </head>
 
 <body>
-    <!-- <a href="{{url_for('home')}}"> 
-        <h2> Ecommerce Store</h2>
-    </a>
-     -->
-
+    <!-- <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav"> -->
+    <nav class="navbar navbar-dark navbar-expand-lg " id="mainNav">
+        <div class="container" style="background-color: #262626;">
+            <a class="navbar-brand js-scroll-trigger" href="{{url_for('home')}}"><img src="{{ url_for('static',filename='assets/img/navbar-logo.png')}}" alt="" /></a>
+            
+                  
+                  {% if not user.email %}
+                    <form action="/login" method="post" class="form-inline">
+              
+                        <input class="nav-link js-scroll-trigger" type="submit" value="users" name="user" style="color:#ffb600;border:0px #000 solid;background-color:transparent;">
+                        <input class="nav-link js-scroll-trigger" type="submit" value="sellers" name="seller" style="color:#ffb600;border:0px #000 solid;background-color:transparent;">
+              
+                    </form>
+                  {% endif %}
+      
+                  {% if user.role=="seller" %}
+      
+                    <form action="/my_products">
+                    <input class="nav-link js-scroll-trigger" type="submit" value="my_products" style="color:#ffb600;border:0px #000 solid;background-color:transparent;">
+                    </form>
+      
+                    <form action="/logout">
+                    <input class="nav-link js-scroll-trigger" type="submit" value="logout" style="color:#ffb600;border:0px #000 solid;background-color:transparent;">
+                    </form>
+      
+      
+                  {% elif user.role=="user" %}
+      
+                    <form action="/view_cart">
+                    <input class="nav-link js-scroll-trigger" type="submit" value="view_cart" style="color:#ffb600;border:0px #000 solid;background-color:transparent;">
+                    </form>
+                    
+                    <form action="/logout">
+                    <input class="nav-link js-scroll-trigger" type="submit" value="logout" style="color:#ffb600;border:0px #000 solid;background-color:transparent;">
+                    </form>
+      
+      
+                  {% endif %}
+      
+              
+        </div>
+      <!-- </nav> -->
+    </nav>
+      
+    
+<div>
 {% block body %}
 {% endblock %}
-
+</div>
 
 
 </body>

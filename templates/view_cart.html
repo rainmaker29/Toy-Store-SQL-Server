@@ -3,7 +3,19 @@
 {% block head %}
 
 <title>Ecommerce Store</title>
+<style>
 
+img {
+  border: none;
+  max-width: 100%;
+  height: 80%;
+  display: block;
+  margin-left: 10%;
+  transition: transform .2s ease-in-out;
+}
+
+
+</style>
 
 {% endblock %}
 
@@ -33,12 +45,14 @@
 
   <div class="item{{ loop.index }}">
     
-    <a href="{{url_for('product', product_id=product_id)}}"> 
+    <a href="{{url_for('product', product_id=product_id)}}">
+      <img src="https://homepages.cae.wisc.edu/~ece533/images/pool.png" alt=""
+            > 
     {{ get_name_by_id(product_id) }}
     </a>
     <form action="/remove_from_cart" method="POST">
 
-        <input type="submit" value="remove" name="{{ product_id }}" >
+        <input type="submit" value="remove" name="{{ product_id }}" class="btn btn-primary ">
 
     </form>
     
@@ -50,15 +64,15 @@
   </div>
 {% endfor %}
 
-<form action="/payment.html" method="POST">
-
-    <input type="submit" value="Proceed to payment" name="{{ user.cost }}"">
-
-</form>
 
 </div>
+<div>
+<form action="/payment.html" method="POST" style="margin-left: 50%; margin-top: 5%;">
 
+  <input type="submit" value="Proceed to payment" name="{{ user.cost }}" class="btn btn-primary ">
 
+</form>
+</div>
 
 
 {% endblock %}

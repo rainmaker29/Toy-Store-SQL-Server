@@ -44,7 +44,16 @@ img {
         
             </form>  
         
-            
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+              
+              {% for message in messages %}
+                <p style="color: white;">{{ message }}</p>
+              {% endfor %}
+              
+            {% endif %}
+          {% endwith %}
+              
             {% if not user.email %}
               <form action="/login" method="post" class="form-inline">
         
@@ -70,15 +79,7 @@ img {
               <form action="/view_cart">
               <input class="nav-link js-scroll-trigger" type="submit" value="view_cart" style="color:#ffb600;border:0px #000 solid;background-color:transparent;">
               </form>
-              {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                  
-                  {% for message in messages %}
-                    <p style="color: white;">{{ message }}</p>
-                  {% endfor %}
-                  
-                {% endif %}
-              {% endwith %}
+              
               <form action="/logout">
               <input class="nav-link js-scroll-trigger" type="submit" value="logout" style="color:#ffb600;border:0px #000 solid;background-color:transparent;">
               </form>

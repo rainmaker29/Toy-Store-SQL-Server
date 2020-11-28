@@ -229,6 +229,13 @@ label {
   margin-bottom: 0.5rem;
 }
 
+
+input[type=submit]{
+  color:#ffb600;
+  border:0px #000 solid;
+  background-color:transparent;
+}
+
 button {
   border-radius: 0;
 }
@@ -3286,6 +3293,8 @@ input[type=button].btn-block {
   clip: rect(0, 0, 0, 0);
   pointer-events: none;
 }
+
+
 
 .input-group {
   position: relative;
@@ -9944,6 +9953,7 @@ h3 {
 
   .navbar {
     display: none;
+    z-index:500;
   }
 
   .badge {

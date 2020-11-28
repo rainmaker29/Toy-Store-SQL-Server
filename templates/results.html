@@ -6,26 +6,15 @@
 
 <style>
 
-    a { color: inherit; } 
+    img {
+  border: none;
+  max-width: 100%;
+  height: 80%;
+  display: block;
+  
+  transition: transform .2s ease-in-out;
+}
 
-    .grid-container {
-        display: grid;
-        grid-template-columns: auto auto auto auto auto auto;
-        grid-gap: 10px;
-        background-color: #21960F;
-        padding: 10px;
-    }
-    
-    .grid-container > div {
-        background-color: rgba(255, 255, 255, 0.8);
-        text-align: center;
-        padding: 20px 0;
-        font-size: 30px;
-    }
-   
-    .item1 {
-        grid-column: 1 / 1;
-    }
 </style>
     
 
@@ -41,8 +30,8 @@
     <p>
     {{ render_field(form.search) }}
   </p></dl>
-  <p><input type="submit" value="Search">
-</p></form>
+  
+</form>
 
 
 
@@ -57,6 +46,7 @@
     <div class="item{{ loop.index }}">
 
        <a href="{{url_for('product', product_id=product_id)}}"> 
+        <img src="https://homepages.cae.wisc.edu/~ece533/images/pool.png" alt="">
            {{ get_name_by_id(product_id) }} 
         </a>
 

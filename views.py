@@ -69,7 +69,7 @@ def search_results(search):
         flash("No results found!")
         return redirect("/")
     else:
-        return render_template("results.html",form=search, results=results)
+        return render_template("results.html",form=search, results=results,user=user)
 
     
 @app.route("/product/<string:product_id>")
@@ -110,6 +110,8 @@ def remove_from_cart():
     key = list(product_info["name"].keys())[0]
     product_price = product_info["price"][key]
     user.cost -= product_price
+    if len(user.cart)==0:
+        user.cost=0
     
     return render_template("/view_cart.html",user=user)
 
