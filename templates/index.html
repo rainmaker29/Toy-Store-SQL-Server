@@ -3,7 +3,29 @@
 {% block head %}
 
 <title>Ecommerce Store</title>
+<style>
 
+figure {
+  margin: 0;
+  overflow: hidden;
+}
+
+figcaption {
+  margin-top: 15px;
+  /* color: #ccc; */
+}
+
+img {
+  border: none;
+  max-width: 100%;
+  height: 150%;
+  display: block;
+  
+  transition: transform .2s ease-in-out;
+}
+
+
+</style>
 
 {% endblock %}
 
@@ -13,47 +35,60 @@
  <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
   <div class="container" style="background-color: #262626;">
       <a class="navbar-brand js-scroll-trigger" href="{{url_for('home')}}"><img src="{{ url_for('static',filename='assets/img/navbar-logo.png')}}" alt="" /></a>
-      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-          Menu
-          <i class="fas fa-bars ml-1"></i>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarResponsive">
+      
+        
         {% from "_formhelpers.html" import render_field %}
             <form method="post">
-                <!-- <dl> -->
-                  <!-- <p> -->
+                
                   {{ render_field(form.search) }}
-                  <!-- </p> -->
-                <!-- </dl> -->
-                <!-- <p> -->
-                  <!-- <input type="submit" value="Search"> -->
-                  
-                <!-- </p> -->
+        
             </form>  
-        <ul class="navbar-nav text-uppercase ml-auto" style="display: inline;">
+        
             
             {% if not user.email %}
               <form action="/login" method="post" class="form-inline">
-                <li class="nav-item"> 
+        
                   <input class="nav-link js-scroll-trigger" type="submit" value="users" name="user" style="color:#ffb600;border:0px #000 solid;background-color:transparent;">
-                </li>
-                <li class="nav-item">
                   <input class="nav-link js-scroll-trigger" type="submit" value="sellers" name="seller" style="color:#ffb600;border:0px #000 solid;background-color:transparent;">
-                </li>
+        
               </form>
             {% endif %}
-          </ul>
-      </div>
+
+            {% if user.role=="seller" %}
+
+              <form action="/my_products">
+              <input class="nav-link js-scroll-trigger" type="submit" value="my_products" style="color:#ffb600;border:0px #000 solid;background-color:transparent;">
+              </form>
+
+              <form action="/logout">
+              <input class="nav-link js-scroll-trigger" type="submit" value="logout" style="color:#ffb600;border:0px #000 solid;background-color:transparent;">
+              </form>
+
+
+            {% elif user.role=="user" %}
+
+              <form action="/view_cart">
+              <input class="nav-link js-scroll-trigger" type="submit" value="view_cart" style="color:#ffb600;border:0px #000 solid;background-color:transparent;">
+              </form>
+              {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                  
+                  {% for message in messages %}
+                    <p style="color: white;">{{ message }}</p>
+                  {% endfor %}
+                  
+                {% endif %}
+              {% endwith %}
+              <form action="/logout">
+              <input class="nav-link js-scroll-trigger" type="submit" value="logout" style="color:#ffb600;border:0px #000 solid;background-color:transparent;">
+              </form>
+
+
+            {% endif %}
+
+        
   </div>
 </nav>
-
-
-
-
-
-
-
-
 
 
 <header class="masthead">
@@ -66,39 +101,8 @@
 
 
 
-{% if user.role=="seller" %}
 
-<form action="/my_products">
-<input type="submit" value="my_products">
-</form>
 
-<form action="/logout">
-  <input type="submit" value="logout">
-  </form>
-  
-
-{% elif user.role=="user" %}
-
-<form action="/view_cart">
-  <input type="submit" value="view_cart">
-  </form>
-
-  <form action="/logout">
-    <input type="submit" value="logout">
-    </form>
-    
-
-{% endif %}
-
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    
-    {% for message in messages %}
-      <p>{{ message }}</p>
-    {% endfor %}
-    
-  {% endif %}
-{% endwith %}
 
     
 
@@ -114,8 +118,18 @@
 
   <div class="item{{ loop.index }}">
     
-    <a href="{{url_for('product', product_id=product_id)}}"> 
-    {{ get_name_by_id(product_id) }}
+    <!-- <a href="{{url_for('product', product_id=product_id)}}"> 
+    
+    </a> -->
+
+
+    <a href="{{url_for('product', product_id=product_id)}}">
+      <figure>
+        <img src="https://homepages.cae.wisc.edu/~ece533/images/pool.png" alt="">
+        <figcaption>
+          <p>{{ trim_name(get_name_by_id(product_id)) }}</p>
+        </figcaption>
+      </figure>
     </a>
     
     </div>

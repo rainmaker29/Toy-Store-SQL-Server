@@ -254,6 +254,14 @@ def getname():
         return df.loc[df["ids"]==id,"name"].to_list()[0]
     return dict(get_name_by_id=get_name_by_id)
 
+@app.context_processor
+def trimname():
+    def trim_name(name):
+        if len(name)>10:
+            name = name[:10]+'...'
+        return name
+    return dict(trim_name=trim_name)
+
 
 @app.context_processor
 def get_length():
