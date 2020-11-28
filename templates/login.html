@@ -2,6 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
    <head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet" />
       <title>Login Page</title>
       <style>
          /* Basics */
@@ -11,7 +12,7 @@
          font-family: "Helvetica Neue", Helvetica, sans-serif;
          color: #444;
          -webkit-font-smoothing: antialiased;
-         background: #f0f0f0;
+         background: #212529;
          }
          #container {
          position: fixed;
@@ -132,7 +133,18 @@
       </style>
    </head>
    <body>
+
+      <nav class="navbar navbar-dark navbar-expand-lg " id="mainNav">
+         <div class="row container" style="background-color: #262626;">
+             <a class="col-sm navbar-brand js-scroll-trigger" href="{{url_for('home')}}"><img src="{{ url_for('static',filename='assets/img/navbar-logo.png')}}" alt="" /></a>
+         </div>
+      </nav>
+             
+
+
+
       <!-- Begin Page Content -->
+      
       <div id="container">
          <div class="container">
             {% for message in get_flashed_messages() %}
@@ -150,7 +162,7 @@
             <label for="password">Password:</label>
             <input type="password" id="password" name="password">
             <div id="lower">
-               <input type="checkbox"><label class="check" for="checkbox">Keep me logged in</label>
+               <!-- <input type="checkbox"><label class="check" for="checkbox">Keep me logged in</label> -->
                <input type="submit" value="Login" name="login">
                <input type="submit" value="SignUp" name="signup">
             </div>

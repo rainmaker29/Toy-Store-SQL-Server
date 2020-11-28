@@ -147,13 +147,25 @@ def add_product():
     flash("Item added !")
     return render_template("/my_products.html",my_prods=get_seller_products(user.email),user=user)
 
+@app.route("/remove_product",methods=["POST"])
+def remove_product():
+    product_id=list(request.form.keys())[0]
+    try:
+        df.drop(df.loc[df["ids"]==product_id,:].index[0],inplace=True)
+        df.to_csv("products.csv",index=False)
+        flash("Item deleted !")
+        return render_template("/my_products.html",my_prods=get_seller_products(user.email),user=user)
+    except :
+        flash("Item not found !")
+        return render_template("/my_products.html",my_prods=get_seller_products(user.email),user=user)
+
 
 # Login , Signup 
 # ------------------
 @app.route("/login",methods=["GET","POST"])
 def login():
     user.role = list(request.form.keys())[0]
-    return render_template("login.html")
+    return render_template("login.html",user=user)
 
 @app.route("/authenticate",methods=["GET","POST"])
 def check_login_or_signup():
@@ -184,23 +196,33 @@ def check_login_or_signup():
             return redirect("/")
          else:
             flash("Login failed,password mismatch")
-            return render_template("login.html")
+            return render_template("login.html",user=user)
       else:
          flash("Login failed,email not found")
-         return render_template("login.html")
+         return render_template("login.html",user=user)
    else:
       email = request.form["email"]
       password = request.form["password"]
       user.email = email
       user.password = password
       if (bool(re.match("(^[a-z])([a-z0-9]+)@gmail\.com",email))) and (bool(re.compile("[A-Z]+").search(password)) and bool(re.compile("[a-z]+").search(password)) and bool(re.compile("[0-9]+").search(password)) and bool(re.compile("[!@#$%^&*=-]+").search(password))):
+         if user.role=="user":
+          filename = "users.json"
+    
+         else:
+             filename="sellers.json"
+         with open(filename,"r") as f:
+             users = json.load(f)
+         if email in users.keys():
+             flash("User exists")
+             return render_template("login.html",user=user)
          # SMTP Code here 
          user.otp = generate_otp()
          s=smtplib.SMTP("smtp.gmail.com",587)
          s.starttls()
-         s.login("amaanrahil29@gmail.com",my_gmail_password)
+         s.login("mksc1289@gmail.com",my_gmail_password)
          msg="OTP generated is "+str(user.otp)
-         s.sendmail("amaanrahil29@gmail.com","amaanrahil29@gmail.com",msg)
+         s.sendmail("mksc1289@gmail.com",email,msg)
          s.quit()
 
          # -------------
@@ -209,7 +231,7 @@ def check_login_or_signup():
          return render_template("otp.html")
       else:
          flash("Invalid email or password")
-         return render_template("login.html")
+         return render_template("login.html",user=user)
         
 
 
