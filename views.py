@@ -10,6 +10,7 @@ import bcrypt
 import smtplib
 import secrets
 import string
+import pyodbc
 
 
 class User():
@@ -29,6 +30,15 @@ app = Flask(__name__)
 app.secret_key = "super secret key"
 app.config["SESSION_TYPE"] = "filesystem"
 
+conn = pyodbc.connect('Driver={/opt/microsoft/msodbcsql17/lib64/libmsodbcsql-17.6.so.1.1};'
+                      'Server=localhost;'
+                      'Database=Products;'
+                      'UID=AMAAN;'
+                      'PWD=AMAAN@123')
+
+cursor = conn.cursor()
+
+
 class SearchForm(Form):
     search = StringField("")
 
@@ -40,13 +50,14 @@ with open("product_indices.pkl","rb") as f:
 @app.route("/",methods=["GET","POST"])
 def home():
     search = SearchForm(request.form)
+    products = cursor.execute("SELECT TOP 12 ids from PRODS_AMAAN;").fetchall()
     if request.method == "POST":
         return search_results(search)
-    if user.email :
+    if user.email :        
         return render_template("index.html", form=search,
-        products=df["ids"].to_list()[:12],user=user)
+        products=products,user=user)
 
-    return render_template("index.html", form=search,products=df["ids"].to_list()[:12],
+    return render_template("index.html", form=search,products=products,
     user=None)
 
 @app.route("/results")
@@ -56,11 +67,11 @@ def search_results(search):
     if search.data["search"] == "":
         flash("Empty search")
         return redirect("/")
-    
-    for i in range(len(df)):
-        if df.iloc[i]["name"]==search.data["search"].strip(" "):
+    id_names = cursor.execute("SELECT ids,names from PRODS_AMAAN;").fetchall()
+    for id_name in id_names:
+        if id_name[1]==search.data["search"].strip(" "):
             print("found")
-            results.append(df.iloc[i]["ids"])
+            results.append(id_name[0])
             print(results)
     
 
@@ -75,12 +86,11 @@ def search_results(search):
 @app.route("/product/<string:product_id>")
 def product(product_id):
     product_info = get_all(product_id)
-    key = list(product_info["name"].keys())[0]
-    name = product_info["name"][key]
+    name = product_info[12]
     recommendations = recommend_product(name)
-
     return render_template("product.html",product_info=product_info,
-    recommendations=recommendations,key=key,user=user)
+    recommendations=recommendations,user=user)
+
 
 
 # User/Customer functions ------------------------
@@ -89,8 +99,7 @@ def product(product_id):
 def add_to_cart():
     product_id = request.referrer.split("/")[-1]
     product_info = get_all(product_id)
-    key = list(product_info["name"].keys())[0]
-    product_price = product_info["price"][key]
+    product_price = product_info[1]
     user.cost += product_price
     user.cart.append(product_id)
     flash(f"Added to cart. In cart : {len(user.cart)} items")
@@ -107,8 +116,7 @@ def remove_from_cart():
     product_id=list(request.form.keys())[0]
     user.cart.remove(product_id)
     product_info = get_all(product_id)
-    key = list(product_info["name"].keys())[0]
-    product_price = product_info["price"][key]
+    product_price = product_info[1]
     user.cost -= product_price
     if len(user.cart)==0:
         user.cost=0
@@ -128,7 +136,7 @@ def my_products():
 
 @app.route("/add_product",methods=['POST'])
 def add_product():
-    new_prod=["N/A"]*14
+    new_prod=[None]*14
 
     new_prod[0] = user.email
     new_prod[1] = request.form['new_product_price']
@@ -137,13 +145,16 @@ def add_product():
     new_prod[12] = request.form['new_product_name']
     new_prod[13] = ''.join(secrets.choice(string.ascii_uppercase + string.digits) 
                                                   for i in range(32)) 
-    if new_prod[1]=="N/A" or new_prod[12]=="N/A":
+    if new_prod[1]==None or new_prod[12]==None:
         flash("Insuff product info ! Add again !")
         return render_template("/my_products.html",my_prods=get_seller_products(user.email),
         user=user)
 
-    df.loc[len(df)+1] = new_prod
-    df.to_csv('products.csv',index=False)
+    cursor.execute("INSERT INTO PRODS_AMAAN (manufacturer,price,number_available_in_stock,number_of_reviews,number_of_answered_questions,average_review_rating,customers_who_bought_this_item_also_bought,items_customers_buy_after_viewing_this_item,sellers,used_or_unused,category,sub_category,names,ids) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+    new_prod[0], new_prod[1], new_prod[2],new_prod[3],new_prod[4],new_prod[5],new_prod[6],new_prod[7],new_prod[8],new_prod[9],new_prod[10],new_prod[11],new_prod[12],new_prod[13])
+    
+    conn.commit()
+    
     flash("Item added !")
     return render_template("/my_products.html",my_prods=get_seller_products(user.email),user=user)
 
@@ -151,8 +162,10 @@ def add_product():
 def remove_product():
     product_id=list(request.form.keys())[0]
     try:
-        df.drop(df.loc[df["ids"]==product_id,:].index[0],inplace=True)
-        df.to_csv("products.csv",index=False)
+        cursor.execute("DELETE FROM PRODS_AMAAN WHERE ids=?",product_id)
+        conn.commit()
+        # df.drop(df.loc[df["ids"]==product_id,:].index[0],inplace=True)
+        # df.to_csv("products.csv",index=False)
         flash("Item deleted !")
         return render_template("/my_products.html",my_prods=get_seller_products(user.email),user=user)
     except :
@@ -276,8 +289,10 @@ def logout():
 
 @app.context_processor
 def getname():
-    def get_name_by_id(id):
-        return df.loc[df["ids"]==id,"name"].to_list()[0]
+    def get_name_by_id(idx):
+        name=cursor.execute("SELECT names FROM PRODS_AMAAN where ids = ?", idx).fetchall()[0][0]
+
+        return name
     return dict(get_name_by_id=get_name_by_id)
 
 @app.context_processor
@@ -297,14 +312,17 @@ def get_length():
 
 
 
-def get_all(id):
-    res = df.loc[df["ids"]==id,:].to_dict()
-    return res
+def get_all(idx):
+    res = cursor.execute("SELECT * FROM PRODS_AMAAN WHERE ids = ?",idx).fetchall()
+    return res[0]
     
 
 
 def get_idx(x):
-    return df[df["name"]==x].index.tolist()[0]
+    idx=cursor.execute("SELECT ind FROM PRODS_AMAAN WHERE names = ?", x).fetchall()[0][0]
+    # print(idx)
+    return idx
+    # return df[df["name"]==x].index.tolist()[0]
 
 def recommend_product(product):
     recommendations=[]
@@ -319,7 +337,7 @@ def recommend_product(product):
             
 def get_seller_products(email):
     res=[]
-    sellers_prods_ids = df.loc[df['manufacturer']==email,'ids'].to_list()
+    sellers_prods_ids = cursor.execute("SELECT ids FROM PRODS_AMAAN where manufacturer = ?", email).fetchall()
     for prod_id in sellers_prods_ids:
-        res.append(prod_id)
+        res.append(prod_id[0])
     return res
