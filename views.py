@@ -1,6 +1,7 @@
 from flask import Flask,render_template,request,redirect,flash,get_flashed_messages
 from wtforms import Form, StringField, SelectField
 from utils import generate_otp,my_gmail_password
+from CustomerDB import UserDB_Obj,SellerDB_Obj
 import numpy as np
 import pandas as pd
 import pickle
@@ -42,7 +43,6 @@ cursor = conn.cursor()
 class SearchForm(Form):
     search = StringField("")
 
-df = pd.read_csv("products.csv")
 
 with open("product_indices.pkl","rb") as f:
     product_indices = pickle.load(f)
@@ -175,6 +175,7 @@ def remove_product():
 
 # Login , Signup 
 # ------------------
+
 @app.route("/login",methods=["GET","POST"])
 def login():
     user.role = list(request.form.keys())[0]
@@ -220,23 +221,33 @@ def check_login_or_signup():
       user.password = password
       if (bool(re.match("(^[a-z])([a-z0-9]+)@gmail\.com",email))) and (bool(re.compile("[A-Z]+").search(password)) and bool(re.compile("[a-z]+").search(password)) and bool(re.compile("[0-9]+").search(password)) and bool(re.compile("[!@#$%^&*=-]+").search(password))):
          if user.role=="user":
-          filename = "users.json"
-    
-         else:
-             filename="sellers.json"
-         with open(filename,"r") as f:
-             users = json.load(f)
-         if email in users.keys():
+        #   filename = "users.json"
+        #   customer_db = UserDB_Obj
+          if email == UserDB_Obj.objects(email=email).first()["email"]:
              flash("User exists")
              return render_template("login.html",user=user)
+
+         else:
+            #  filename="sellers.json"
+            #  customer_db = SellerDB_Obj
+             if email == SellerDB_Obj.objects(email=email).first()["email"]:
+                flash("User exists")
+                return render_template("login.html",user=user)
+
+         
+         
+        #  with open(filename,"r") as f:
+        #      users = json.load(f)
+        #  print(customer_db.objects(email=email).first().values)
+         
          # SMTP Code here 
          user.otp = generate_otp()
-         s=smtplib.SMTP("smtp.gmail.com",587)
-         s.starttls()
-         s.login("mksc1289@gmail.com",my_gmail_password)
-         msg="OTP generated is "+str(user.otp)
-         s.sendmail("mksc1289@gmail.com",email,msg)
-         s.quit()
+        #  s=smtplib.SMTP("smtp.gmail.com",587)
+        #  s.starttls()
+        #  s.login("mksc1289@gmail.com",my_gmail_password)
+        #  msg="OTP generated is "+str(user.otp)
+        #  s.sendmail("mksc1289@gmail.com",email,msg)
+        #  s.quit()
 
          # -------------
          
@@ -257,21 +268,26 @@ def checkotp():
       hashed = bcrypt.hashpw(password, salt)
 
       if user.role=="user":
-          filename = "users.json"
+          customer_doc = UserDB_Obj()
+        #   filename = "users.json"
     
       else:
-          filename="sellers.json"
+          customer_doc = SellerDB_Obj()
+        #   filename="sellers.json"
 
-      with open(filename,"r") as f:
-         users = json.load(f)
+    #   with open(filename,"r") as f:
+    #      users = json.load(f)
 
-      users[user.email] = str(hashed)+"\t"+str(salt)
+    #   users[user.email] = str(hashed)+"\t"+str(salt)
+      customer_doc.email = user.email
+      customer_doc.password = str(hashed)+"\t"+str(salt)
+      customer_doc.save()
 
-      with open(filename,"w+") as f:
-         json.dump(users,f)
+    #   with open(filename,"w+") as f:
+    #      json.dump(users,f)
 
       flash("Sign up successful")
-      return redirect("login.html")
+      return redirect("login")
    else:
       flash("otp failed")
       return render_template("login.html")
@@ -282,6 +298,9 @@ def logout():
     user.password=None
     user.role=None
     user.otp=None
+    if user.cart:
+        user.cart=[]
+        user.cost=0
     return redirect("/")
 
 ### Utils 
