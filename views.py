@@ -149,9 +149,9 @@ def add_product():
         flash("Insuff product info ! Add again !")
         return render_template("/my_products.html",my_prods=get_seller_products(user.email),
         user=user)
-
-    cursor.execute("INSERT INTO PRODS_AMAAN (manufacturer,price,number_available_in_stock,number_of_reviews,number_of_answered_questions,average_review_rating,customers_who_bought_this_item_also_bought,items_customers_buy_after_viewing_this_item,sellers,used_or_unused,category,sub_category,names,ids) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-    new_prod[0], new_prod[1], new_prod[2],new_prod[3],new_prod[4],new_prod[5],new_prod[6],new_prod[7],new_prod[8],new_prod[9],new_prod[10],new_prod[11],new_prod[12],new_prod[13])
+    fin_ind = cursor.execute("SELECT TOP 1 ind FROM PRODS_AMAAN ORDER BY ind DESC").fetchall()[0][0]
+    cursor.execute("INSERT INTO PRODS_AMAAN (manufacturer,price,number_available_in_stock,number_of_reviews,number_of_answered_questions,average_review_rating,customers_who_bought_this_item_also_bought,items_customers_buy_after_viewing_this_item,sellers,used_or_unused,category,sub_category,names,ids,ind) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+    new_prod[0], new_prod[1], new_prod[2],new_prod[3],new_prod[4],new_prod[5],new_prod[6],new_prod[7],new_prod[8],new_prod[9],new_prod[10],new_prod[11],new_prod[12],new_prod[13],fin_ind+1)
     
     conn.commit()
     
@@ -329,7 +329,9 @@ def recommend_product(product):
     index = get_idx(product)
     try:
         for i in product_indices[index][1:]:
-            recommendations.append(df.iloc[i]["ids"])
+            ind = cursor.execute("SELECT ids FROM PRODS_AMAAN WHERE ind=?",int(i)).fetchall()[0][0]
+            print(ind)
+            recommendations.append(ind)
     except IndexError:
         recommendations=[]
 
