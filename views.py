@@ -187,21 +187,21 @@ def check_login_or_signup():
       email = request.form["email"]
       password = request.form["password"]
       if user.role=="user":
-          filename = "users.json"
+        #   filename = "users.json"
+          customer_db = UserDB_Obj
     
       else:
-          filename="sellers.json"
-      with open(filename,"r") as f:
-         users = json.load(f)
+        #   filename="sellers.json"
+          customer_db = SellerDB_Obj
+    #   with open(filename,"r") as f:
+    #      users = json.load(f)
          
-      
-      if email in users.keys():
-
-         salt = bytes(users[email].split("\t")[1][2:-1],"utf-8")
+      if (customer_db.objects()) and (customer_db.objects(email=email).first()):
+         salt = bytes(customer_db.objects(email=email).first()["password"].split("\t")[1][2:-1],"utf-8")
          password = bytes(password,"utf-8")
          hashed = bcrypt.hashpw(password, salt)
 
-         if str(hashed) == users[email].split("\t")[0]:
+         if str(hashed) == customer_db.objects(email=email).first()["password"].split("\t")[0]:
             user.email = email
             user.password = str(hashed)
             if user.role=="user":
@@ -223,14 +223,14 @@ def check_login_or_signup():
          if user.role=="user":
         #   filename = "users.json"
         #   customer_db = UserDB_Obj
-          if email == UserDB_Obj.objects(email=email).first()["email"]:
+          if UserDB_Obj.objects(email=email).first() and (email == UserDB_Obj.objects(email=email).first()["email"]):
              flash("User exists")
              return render_template("login.html",user=user)
 
          else:
             #  filename="sellers.json"
             #  customer_db = SellerDB_Obj
-             if email == SellerDB_Obj.objects(email=email).first()["email"]:
+             if (SellerDB_Obj.objects(email=email).first()) and (email == SellerDB_Obj.objects(email=email).first()["email"]):
                 flash("User exists")
                 return render_template("login.html",user=user)
 
@@ -242,12 +242,12 @@ def check_login_or_signup():
          
          # SMTP Code here 
          user.otp = generate_otp()
-        #  s=smtplib.SMTP("smtp.gmail.com",587)
-        #  s.starttls()
-        #  s.login("mksc1289@gmail.com",my_gmail_password)
-        #  msg="OTP generated is "+str(user.otp)
-        #  s.sendmail("mksc1289@gmail.com",email,msg)
-        #  s.quit()
+         s=smtplib.SMTP("smtp.gmail.com",587)
+         s.starttls()
+         s.login("mksc1289@gmail.com",my_gmail_password)
+         msg="OTP generated is "+str(user.otp)
+         s.sendmail("mksc1289@gmail.com",email,msg)
+         s.quit()
 
          # -------------
          
@@ -287,7 +287,7 @@ def checkotp():
     #      json.dump(users,f)
 
       flash("Sign up successful")
-      return redirect("login")
+      return redirect("/login")
    else:
       flash("otp failed")
       return render_template("login.html")
