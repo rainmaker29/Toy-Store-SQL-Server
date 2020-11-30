@@ -129,8 +129,14 @@ def payment():
 
 # Seller Functions ------------------------
 
+@app.route("/error404")
+def error404():
+    return render_template("error404.html")
+
 @app.route("/my_products")
 def my_products():
+    if user.email==None:
+        return redirect("/error404")
     return render_template("my_products.html",my_prods=get_seller_products(user.email),
     user=user)
 
@@ -145,7 +151,7 @@ def add_product():
     new_prod[12] = request.form['new_product_name']
     new_prod[13] = ''.join(secrets.choice(string.ascii_uppercase + string.digits) 
                                                   for i in range(32)) 
-    if new_prod[1]==None or new_prod[12]==None:
+    if  new_prod[0]==None or new_prod[1]==None or new_prod[12]==None:
         flash("Insuff product info ! Add again !")
         return render_template("/my_products.html",my_prods=get_seller_products(user.email),
         user=user)
@@ -164,8 +170,6 @@ def remove_product():
     try:
         cursor.execute("DELETE FROM PRODS_AMAAN WHERE ids=?",product_id)
         conn.commit()
-        # df.drop(df.loc[df["ids"]==product_id,:].index[0],inplace=True)
-        # df.to_csv("products.csv",index=False)
         flash("Item deleted !")
         return render_template("/my_products.html",my_prods=get_seller_products(user.email),user=user)
     except :
@@ -178,7 +182,11 @@ def remove_product():
 
 @app.route("/login",methods=["GET","POST"])
 def login():
-    user.role = list(request.form.keys())[0]
+    if request.referrer==None:
+        flash("You gotta select a role")
+        return redirect("/")
+    if len(list(request.form.keys()))>0:
+        user.role = list(request.form.keys())[0]
     return render_template("login.html",user=user)
 
 @app.route("/authenticate",methods=["GET","POST"])
@@ -187,15 +195,11 @@ def check_login_or_signup():
       email = request.form["email"]
       password = request.form["password"]
       if user.role=="user":
-        #   filename = "users.json"
           customer_db = UserDB_Obj
     
       else:
-        #   filename="sellers.json"
           customer_db = SellerDB_Obj
-    #   with open(filename,"r") as f:
-    #      users = json.load(f)
-         
+
       if (customer_db.objects()) and (customer_db.objects(email=email).first()):
          salt = bytes(customer_db.objects(email=email).first()["password"].split("\t")[1][2:-1],"utf-8")
          password = bytes(password,"utf-8")
@@ -221,24 +225,17 @@ def check_login_or_signup():
       user.password = password
       if (bool(re.match("(^[a-z])([a-z0-9]+)@gmail\.com",email))) and (bool(re.compile("[A-Z]+").search(password)) and bool(re.compile("[a-z]+").search(password)) and bool(re.compile("[0-9]+").search(password)) and bool(re.compile("[!@#$%^&*=-]+").search(password))):
          if user.role=="user":
-        #   filename = "users.json"
-        #   customer_db = UserDB_Obj
           if UserDB_Obj.objects(email=email).first() and (email == UserDB_Obj.objects(email=email).first()["email"]):
              flash("User exists")
              return render_template("login.html",user=user)
 
          else:
-            #  filename="sellers.json"
-            #  customer_db = SellerDB_Obj
              if (SellerDB_Obj.objects(email=email).first()) and (email == SellerDB_Obj.objects(email=email).first()["email"]):
                 flash("User exists")
                 return render_template("login.html",user=user)
 
          
          
-        #  with open(filename,"r") as f:
-        #      users = json.load(f)
-        #  print(customer_db.objects(email=email).first().values)
          
          # SMTP Code here 
          user.otp = generate_otp()
@@ -269,23 +266,16 @@ def checkotp():
 
       if user.role=="user":
           customer_doc = UserDB_Obj()
-        #   filename = "users.json"
+        
     
       else:
           customer_doc = SellerDB_Obj()
-        #   filename="sellers.json"
-
-    #   with open(filename,"r") as f:
-    #      users = json.load(f)
-
-    #   users[user.email] = str(hashed)+"\t"+str(salt)
+        
       customer_doc.email = user.email
       customer_doc.password = str(hashed)+"\t"+str(salt)
       customer_doc.save()
 
-    #   with open(filename,"w+") as f:
-    #      json.dump(users,f)
-
+    
       flash("Sign up successful")
       return redirect("/login")
    else:
@@ -339,9 +329,8 @@ def get_all(idx):
 
 def get_idx(x):
     idx=cursor.execute("SELECT ind FROM PRODS_AMAAN WHERE names = ?", x).fetchall()[0][0]
-    # print(idx)
     return idx
-    # return df[df["name"]==x].index.tolist()[0]
+
 
 def recommend_product(product):
     recommendations=[]
