@@ -31,11 +31,18 @@ app = Flask(__name__)
 app.secret_key = "super secret key"
 app.config["SESSION_TYPE"] = "filesystem"
 
+# For Docker , use SA UID
 conn = pyodbc.connect('Driver={/opt/microsoft/msodbcsql17/lib64/libmsodbcsql-17.6.so.1.1};'
                       'Server=localhost;'
                       'Database=Products;'
-                      'UID=AMAAN;'
+                      'UID=SA;'
                       'PWD=AMAAN@123')
+
+# conn = pyodbc.connect('Driver={/opt/microsoft/msodbcsql17/lib64/libmsodbcsql-17.6.so.1.1};'
+#                       'Server=localhost;'
+#                       'Database=Products;'
+#                       'UID=AMAAN;'
+#                       'PWD=AMAAN@123')
 
 cursor = conn.cursor()
 

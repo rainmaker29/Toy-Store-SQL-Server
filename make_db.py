@@ -1,15 +1,24 @@
 import pyodbc
 import pandas as pd
+
+# For Docker, we use System Admin (SA) UID
 conn = pyodbc.connect('Driver={/opt/microsoft/msodbcsql17/lib64/libmsodbcsql-17.6.so.1.1};'
                       'Server=localhost;'
                       'Database=Products;'
-                      'UID=AMAAN;'
+                      'UID=SA;'
                       'PWD=AMAAN@123')
+
+
+# conn = pyodbc.connect('Driver={/opt/microsoft/msodbcsql17/lib64/libmsodbcsql-17.6.so.1.1};'
+#                       'Server=localhost;'
+#                       'Database=Products;'
+#                       'UID=AMAAN;'
+#                       'PWD=AMAAN@123')
 
 cursor = conn.cursor()
 
 
-df = pd.read_csv("products.csv")
+df = pd.read_csv("./extras/products.csv")
 
 cursor.execute("CREATE TABLE PRODS_AMAAN (manufacturer VARCHAR(100),price FLOAT,number_available_in_stock FLOAT, number_of_reviews FLOAT, number_of_answered_questions FLOAT,average_review_rating FLOAT,customers_who_bought_this_item_also_bought VARCHAR(100),items_customers_buy_after_viewing_this_item VARCHAR(100),sellers VARCHAR(500),used_or_unused VARCHAR(100),category VARCHAR(100),sub_category VARCHAR(100),names VARCHAR(1000),ids VARCHAR(100),ind INT)")
 
