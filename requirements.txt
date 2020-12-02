@@ -5,3 +5,5 @@ numpy
 pandas
 bcrypt
 secret
+pyodbc
+mongoengine

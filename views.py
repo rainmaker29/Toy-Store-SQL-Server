@@ -31,12 +31,31 @@ app = Flask(__name__)
 app.secret_key = "super secret key"
 app.config["SESSION_TYPE"] = "filesystem"
 
-# For Docker , use SA UID
+# For Docker , use SA UID - this attempt is using container IPv4
+# conn = pyodbc.connect('Driver={/opt/microsoft/msodbcsql17/lib64/libmsodbcsql-17.6.so.1.1};'
+#                       'Server=172.18.0.2/16,1433;'
+#                       'Database=Products;'
+#                       'UID=SA;'
+#                       'PWD=AMAAN@123')
+
+#This one is between containers ,using name.
 conn = pyodbc.connect('Driver={/opt/microsoft/msodbcsql17/lib64/libmsodbcsql-17.6.so.1.1};'
-                      'Server=localhost;'
+                      'Server=sqlserver;'
                       'Database=Products;'
                       'UID=SA;'
                       'PWD=AMAAN@123')
+
+
+
+
+
+
+# This one is for container and host 
+# conn = pyodbc.connect('Driver={/opt/microsoft/msodbcsql17/lib64/libmsodbcsql-17.6.so.1.1};'
+#                       'Server=localhost;'
+#                       'Database=Products;'
+#                       'UID=SA;'
+#                       'PWD=AMAAN@123')
 
 # conn = pyodbc.connect('Driver={/opt/microsoft/msodbcsql17/lib64/libmsodbcsql-17.6.so.1.1};'
 #                       'Server=localhost;'

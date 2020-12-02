@@ -2,8 +2,13 @@ import datetime
 import mongoengine
 
 
+
+
 def mongo_global_init():
-    mongoengine.register_connection(alias='core', name='customers')
+    mongoengine.register_connection(alias='core', name='customers',host="mongoserver")
+
+# def mongo_global_init():
+#     mongoengine.register_connection(alias='core', name='customers',host="172.18.0.3/16")
 
 
 
